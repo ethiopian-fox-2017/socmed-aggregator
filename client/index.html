@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="/javascript/jquery-3.2.0.min.js"></script>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="/stylesheet/style.css" rel="stylesheet">
+    <title>Twitter</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <h3>New Tweet:</h3>
+      <div class="row">
+        <div class="row">
+          <div class="input-field col s12">
+            <textarea id="textarea1" class="materialize-textarea" ></textarea>
+              <label for="textarea1">Tweet Here</label>
+              <button class="btn waves-effect waves-light" type="submit" name="action" onclick="tweet()">Tweet
+              <i class="material-icons right">send</i>
+              </button>
+          </div>
+        </div>
+      </div>
+
+
+      <h3>Recent Tweets:</h3>
+      <table class="striped" id="recentTweet">
+        <thead>
+          <tr>
+            <th>Tweets</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+
+      <br>
+      <h3>Search Tweet:</h3>
+      <nav>
+      <div class="nav-wrapper" id="searchbox">
+          <div class="input-field">
+            <input id="search" type="search" required>
+            <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+            <i class="material-icons">close</i>
+          </div>
+      </div>
+      </nav>
+      <br>
+      <button class="btn waves-effect waves-light" type="submit" name="action" onclick="search()">Search
+      <i class="material-icons right">send</i>
+      </button>
+
+      <table id="searchResult" class="striped">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Tweet</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div> <!-- END OF DIV CONTAINER -->
+
+
+    <script type="text/javascript" language="javascript">
+
+    $(document).ready(function(){
+      $('#searchResult').hide();
+    })
+      $.ajax({
+        url: 'http://localhost:3000/api/tweet/recent',
+        type: 'GET',
+        success: function(data){
+          let tweets = JSON.parse(data);
+          for(let i = 0; i < tweets.length; i++){
+            $('#recentTweet').append(`<tr><td>${tweets[i].text}</td><td>${tweets[i].created_at}</td></tr>`)
+          }
+        }
+      })
+
+      function tweet() {
+        $.ajax({
+          url: 'http://localhost:3000/api/tweet/new',
+          type: 'POST',
+          data: {
+            status: $('textarea').val()
+          },
+          success: function(data) {
+            console.log(data)
+            let tweets = JSON.parse(data)
+            if(tweets.errors){
+              Materialize.toast("You have tweeted that today", 3000)
+            } else {
+              $('tbody').prepend(`<tr><td>${tweets.text}</td><td>${tweets.created_at}</td></tr>`)
+              Materialize.toast("Tweeted successfully!", 3000)
+            }
+          }
+        })
+      }
+
+      function search() {
+        $.ajax({
+          url: 'http://localhost:3000/api/tweet/search',
+          type: 'GET',
+          data: {
+            q: $('#search').val()
+          },
+          success: function(data) {
+            $('#searchResult').show();
+            for(let i = 0; i < data.length; i++){
+              $('#searchResult').append(`<tr><td>${data[i].user.screen_name}</td><td>${data[i].text}</td><td>${data[i].created_at}</td></tr>`)
+            }
+          }
+        })
+      }
+
+    </script>
+
+  </body>
+</html>
