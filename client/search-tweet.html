@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Socmed Aggregator</title>
+    <style media="screen">
+      .container {
+        font-size: 2em;
+      }
+
+      ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+      }
+
+      li {
+          float: left;
+      }
+
+      li a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+      }
+
+      /* Change the link color to #111 (black) on hover */
+      li a:hover {
+          background-color: #111;
+      }
+    </style>
+    <script src="js/jquery-3.2.0.min.js"></script>
+    <script src="lib/query.js"></script>
+  </head>
+
+  <body>
+    <h3>Socmed Aggregator</h3>
+    <ul>
+     <li><a href="index.html">Home</a></li>
+     <li><a>Search</a></li>
+     <!--
+     <li style="float:right"><a class="active" href="#about">About</a></li>
+   -->
+   </ul>
+    <hr>
+
+    <h3>Search</h3>
+
+    <div>
+      What are you looking for ? <input type="text" id="lookin">
+      <button onclick="searchTweet()">Search</button>
+    </div>
+
+    <div id="resultLine">
+    </div>
+
+  </body>
+
+  <script>
+
+    //without jQuery
+    function searchTweetAjax() {
+      let query = encodeURIComponent($('#lookin').val());
+      AjaxWrapper.request({
+        url: 'http://localhost:3000/twitter?q=' + query,
+        type: 'GET',
+        success: function(data) {
+          console.log("Success: ", data);
+          let statuses = data.statuses;
+          for(let i=0;i<statuses.length;i++){
+            $('#resultLine').append(`<p>${statuses[i].text}</p>`);
+          }
+
+        },
+        fail: function() {
+          console.log("ERROR")
+        }
+      });
+
+    }
+
+    //jQuery
+    function searchTweet(){
+      let query = encodeURIComponent($('#lookin').val());
+      $.ajax({
+        url: 'http://localhost:3000/twitter?q=' + query,
+        type: 'GET',
+        success: function(result){
+          console.log("Success: ", result);
+          let statuses = JSON.parse(result).statuses;
+          // console.log('statuses', statuses);
+          for(let i=0;i<statuses.length;i++){
+            $('#resultLine').append(`<p>${statuses[i].text}</p>`);
+          }
+        },
+        fail: function() {
+          console.log("ERROR");
+        }
+      })
+    }
+
+  </script>
+
+</html>

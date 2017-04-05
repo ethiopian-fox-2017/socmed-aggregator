@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Socmed Aggregator</title>
+    <style media="screen">
+      .container {
+        font-size: 2em;
+      }
+
+      ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+      }
+
+      li {
+          float: left;
+      }
+
+      li a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+      }
+
+      /* Change the link color to #111 (black) on hover */
+      li a:hover {
+          background-color: #111;
+      }
+
+      textarea {
+        width: 300px;
+        height: 50px;
+      }
+    </style>
+    <script src="js/jquery-3.2.0.min.js"></script>
+    <script src="lib/query.js"></script>
+  </head>
+
+  <body>
+    <h3>Socmed Aggregator</h3>
+    <ul>
+     <li><a onclick="recentTweetAjax()">Home</a></li>
+     <li><a href="search-tweet.html">Search</a></li>
+     <!--
+     <li style="float:right"><a class="active" href="#about">About</a></li>
+   -->
+   </ul>
+    <hr>
+<div>
+    Tweet :
+  <div>
+    <textarea id="newPostArea"></textarea>
+  </div>
+  <button onclick="postTweet()">Post</button>
+</div>
+    <h3>Timeline</h3>
+
+    <div id="timeline">
+    </div>
+
+  </body>
+
+  <script>
+
+  $(function() {
+      startRefresh();
+  });
+
+  function startRefresh() {
+      setTimeout(startRefresh,10000);
+      // $.get('pagelink.php', function(data) {
+      //     $('#content_div_id').html(data);
+      // });
+      AjaxWrapper.request({
+        url: 'http://localhost:3000/twitter/timeline',
+        type: 'GET',
+        success: function(data) {
+          console.log("Success: ", data)
+          $('#timeline').empty();
+          for(let i=0;i<data.length;i++){
+            $('#timeline').append(`<p>${data[i].text}</p>`);
+          }
+
+        },
+        fail: function() {
+          console.log("ERROR")
+        }
+      });
+  }
+
+    function recentTweetAjax() {
+      AjaxWrapper.request({
+        url: 'http://localhost:3000/twitter/timeline',
+        type: 'GET',
+        success: function(data) {
+          console.log("Success: ", data)
+          for(let i=0;i<data.length;i++){
+            $('#timeline').append(`<p>${data[i].text}</p>`);
+          }
+
+        },
+        fail: function() {
+          console.log("ERROR")
+        }
+      });
+
+    }
+
+    function postTweetAjax(){
+      let url = 'http://localhost:3000/twitter';
+      let newTweet = $('#newPostArea').val();
+      AjaxWrapper.post(
+        url, newTweet
+      );
+    }
+
+    //using jQuery
+    function postTweet(){
+      let newTweet = $('#newPostArea').val();
+      $.ajax({
+        url: 'http://localhost:3000/twitter',
+        type: 'POST',
+        data: {
+          status: $('#newPostArea').val()
+        },
+        success: function(data){
+          console.log(data);
+          alert("Tweet succeed");
+          $('#newPostArea').val('');
+          // $('#timeline').prepend(`<p>${newTweet}</p>`);
+          // location.href = "index.html";
+        }
+      })
+    }
+
+
+  </script>
+
+</html>
